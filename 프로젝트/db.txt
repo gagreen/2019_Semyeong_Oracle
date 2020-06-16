@@ -1,0 +1,46 @@
+CREATE TABLE nba_east_rank(
+	rank NUMBER(2),
+	team VARCHAR2(20),
+	division VARCHAR2(3),
+	games NUMBER,
+	win NUMBER,
+	lose NUMBER,
+	pct VARCHAR2(5),
+	dif VARCHAR2(3),
+	hWin NUMBER,
+	hLose NUMBER,
+	aWin NUMBER,
+	aLose NUMBER,
+	dWin NUMBER,
+	dLose NUMBER,
+	streak VARCHAR2(7)
+);
+
+CREATE TABLE nba_west_rank(
+	rank NUMBER(2),
+	team VARCHAR2(35),
+	division VARCHAR2(3),
+	games NUMBER,
+	win NUMBER,
+	lose NUMBER,
+	pct VARCHAR2(5),
+	dif VARCHAR2(3),
+	hWin NUMBER,
+	hLose NUMBER,
+	aWin NUMBER,
+	aLose NUMBER,
+	dWin NUMBER,
+	dLose NUMBER,
+	streak VARCHAR2(7)
+);
+
+Create sequence t_c start with 1 increment by 1 minvalue 1 maxvalue 99999999;
+
+CREATE TABLE t2(
+	no number,
+	title varchar2(20),
+	writer varchar2(20),
+	content varchar2(2000),
+	regdate date,
+	password varchar2(20)
+);

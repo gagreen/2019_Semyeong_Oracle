@@ -1,0 +1,19 @@
+1.
+SELECT p.name, p.deptno, d.dname FROM professor p, department d 
+	WHERE p.deptno = d.deptno AND p.name IN ('Meg Ryan', 'Sharon Stone');
+
+2.
+SELECT s.name, sc.total, p.name FROM student s, score sc, professor p 
+	WHERE s.studno = sc.studno AND s.profno = p.profno(+) AND sc.total >= 90;
+
+3.
+SELECT ROUND(AVG(sc.total), 1) "1학년 평균" FROM student s, score sc
+	WHERE s.studno = sc.studno AND s.grade = 1;
+
+4.
+SELECT s.studno, s.name, h.height FROM student s, student h
+	WHERE s.height = h.height AND s.studno <> h.studno ORDER BY 3;
+
+5.
+SELECT s.name, sc.total, RANK() OVER(order by sc.total desc)"순위" FROM student s, score sc
+	WHERE s.studno = sc.studno;

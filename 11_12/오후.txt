@@ -1,0 +1,228 @@
+1. 중첩 PL/SQL
+
+DECLARE
+	v_first VARCHAR2(5) := 'FIRST';
+BEGIN
+	DECLARE
+		v_second VARCHAR2(6) := 'SECOND';
+	BEGIN
+		DBMS_OUTPUT.PUT_LINE(v_first);
+		DBMS_OUTPUT.PUT_LINE(v_second);
+	END;
+	DBMS_OUTPUT.PUT_LINE(v_first);
+END;
+/
+
+2. TYPE
+
+ 1)
+CREATE TABLE pl_employees3
+	AS SELECT empno, ename, sal
+	FROM emp;
+
+DECLARE
+	vno pl_employees3.empno%TYPE;
+	vname pl_employees3.ename%TYPE;
+	vsal pl_employees3.sal%TYPE;
+BEGIN
+	SELECT empno, ename, sal INTO vno, vname, vsal
+	FROM pl_employees3
+	WHERE empno = 7900;
+	DBMS_OUTPUT.PUT_LINE(vno||'--'||vname||'--'||vsal);
+END;
+/
+
+ 2)
+DECLARE
+	vno1 NUMBER := &no1;
+	vno2 NUMBER := &no2;
+	vsum NUMBER;
+BEGIN
+	vsum := vno1 + vno2;
+	DBMS_OUTPUT.PUT_LINE(vno1 || '+' || vno2 || '=' || vsum);
+END;
+/
+
+3. 복합 변수
+
+ 1)
+DECLARE
+	TYPE emp_record_type IS RECORD(
+		empno emp.empno%TYPE,
+		ename emp.ename%TYPE,
+		sal emp.sal%TYPE	
+	);
+	v_rec emp_record_type;
+BEGIN
+	SELECT empno, ename, sal INTO v_rec
+	FROM emp
+	WHERE empno = 7369;
+
+	DBMS_OUTPUT.PUT_LINE(v_rec.empno || ' ' || v_rec.ename || ' ' || v_rec.sal);
+END;
+/
+
+4. 테이블 타입 변수
+
+ 1)
+DECLARE
+	t_name VARCHAR2(20);
+	TYPE tbl1_emp_name IS TABLE OF
+		emp.ename%TYPE
+		INDEX BY BINARY_INTEGER;
+	v_name tbl1_emp_name;
+BEGIN
+	SELECT ename INTO t_name
+		FROM emp
+		WHERE empno = 7369;
+	v_name(0) := t_name;
+	DBMS_OUTPUT.PUT_LINE(v_name(0));
+END;
+/
+
+5. 비PL/SQL
+
+ 1)
+VARIABLE v_bind NUMBER;
+BEGIN
+	SELECT (sal*12) INTO :v_bind
+	FROm emp
+	WHERE empno = 7900;
+END;
+/
+PRINT v_bind;
+
+6. 조건문
+
+ 1) IF
+DECLARE
+	vempno emp.empno%TYPE;
+	vname emp.ename%TYPE;
+	vsal emp.sal%TYPE;
+	vcomm emp.comm%TYPE;
+	vtotal NUMBER;
+BEGIN
+	SELECT empno, ename, sal, comm, sal*comm INTO vempno, vname, vsal, vcomm, vtotal
+		FROM emp
+		WHERE empno = 7900;
+	
+	IF vcomm > 0 THEN
+		DBMS_OUTPUT.PUT_LINE (vname || ' 사원 보너스는 ' || vtotal || '입니다.');
+	ELSE
+		DBMS_OUTPUT.PUT_LINE (vname || ' 사원 보너스는 없습니다.');
+	END IF;
+END;
+/
+ 
+ 2) CASE
+DECLARE
+	vempno emp.empno%TYPE;
+	vname emp.ename%TYPE;
+	vdeptno emp.deptno%TYPE;
+	v_dname VARCHAR2(20);
+BEGIN
+	SELECT empno, ename, deptno INTO vempno, vname, vdeptno
+		FROM emp
+		WHERE empno = &empno;
+	
+	v_dname := CASE vdeptno
+		WHEN 10 THEN 'Admin'
+		WHEN 20 THEN 'Marking'
+		WHEN 30 THEN 'Purchasing'
+		WHEN 40 THEN 'Human'
+	END;
+	DBMS_OUTPUT.PUT_LINE(vempno ||' '|| vname ||' '|| v_dname);
+END;
+/
+
+7. 반복문
+
+ 1) LOOP
+DECLARE
+	no1 NUMBER := 0;
+BEGIN
+	LOOP
+		DBMS_OUTPUT.PUT_LINE(no1);
+		no1 := no1 + 1;
+		EXIT WHEN no1 > 5;
+	END LOOP;
+END;
+/
+
+ 2) WHILE
+DECLARE
+	no1 NUMBER := 0;
+BEGIN
+	WHILE no1 < 5 LOOP
+		DBMS_OUTPUT.PUT_LINE(no1);
+		no1 := no1 + 1;
+	END LOOP;
+END;
+/
+
+ 3) FOR
+DECLARE
+	no1 NUMBER := 0;
+BEGIN
+	FOR i IN 1..5 LOOP
+		DBMS_OUTPUT.PUT_LINE(no1);
+		no1 := no1 + 1;
+	END LOOP;
+END;
+/
+
+8. 커서
+
+ 1)
+DECLARE
+	vempno emp.empno%TYPE;
+	vname emp.ename%TYPE;
+	CURSOR c1 IS
+		SELECT empno, ename
+			FROM emp
+			WHERE deptno = 30;
+BEGIN
+	OPEN c1;
+	LOOP
+		FETCH c1 INTO vempno, vname;
+		EXIT WHEN c1%NOTFOUND;
+		DBMS_OUTPUT.PUT_LINE(vempno ||'=='||vname);
+	END LOOP;
+	CLOSE c1;
+END;
+/
+
+ 2) FOR & 커서
+ PASS
+
+9. 예외
+
+ 1)
+DECLARE
+	vname emp.ename%TYPE;
+BEGIN
+	SELECT ename INTO vname
+		FROM emp
+		WHERE ename LIKE 'K%';
+	DBMS_OUTPUT.PUT_LINE('사원명 : ' ||vname);
+EXCEPTION
+	WHEN NO_DATA_FOUND THEN
+		DBMS_OUTPUT.PUT_LINE('NO DATA');
+	WHEN TOO_MANY_ROWS THEN
+		DBMS_OUTPUT.PUT_LINE('TO MANY');
+END;
+/
+
+10. 프로시저
+CREATE OR REPLACE up_sal(
+	vempno emp.empno%TYPE;
+)IS
+	BEGIN
+		UPDATE emp SET sal = 800
+		WHERE empno = vempno;
+	END;
+/
+EXEC up_sal(7369);
+
+SELECT empno, sal FROM emp
+	WHERE empno = 7369;

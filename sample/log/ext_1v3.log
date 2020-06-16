@@ -1,0 +1,48 @@
+
+
+ LOG file opened at 11/13/07 19:46:00
+
+Field Definitions for table SALES_TRANSACTIONS_EXT
+  Record format DELIMITED BY NEWLINE
+  Data in file has same endianness as the platform
+  Rows with all null fields are accepted
+
+  Fields in Data Source: 
+
+    PROD_ID                         CHAR (255)
+      Terminated by "|"
+      Enclosed by "^" and "^"
+      Trim whitespace same as SQL Loader
+    CUST_ID                         CHAR (255)
+      Terminated by "|"
+      Enclosed by "^" and "^"
+      Trim whitespace same as SQL Loader
+    TIME_ID                         CHAR (10)
+      Date datatype DATE, date mask YYYY-MM-DD
+      Terminated by "|"
+      Enclosed by "^" and "^"
+      Trim whitespace same as SQL Loader
+    CHANNEL_ID                      CHAR (255)
+      Terminated by "|"
+      Enclosed by "^" and "^"
+      Trim whitespace same as SQL Loader
+    PROMO_ID                        CHAR (255)
+      Terminated by "|"
+      Enclosed by "^" and "^"
+      Trim whitespace same as SQL Loader
+    QUANTITY_SOLD                   CHAR (255)
+      Terminated by "|"
+      Enclosed by "^" and "^"
+      Trim whitespace same as SQL Loader
+    AMOUNT_SOLD                     CHAR (255)
+      Terminated by "|"
+      Enclosed by "^" and "^"
+      Trim whitespace same as SQL Loader
+    UNIT_COST                       CHAR (255)
+      Terminated by "|"
+      Enclosed by "^" and "^"
+      Trim whitespace same as SQL Loader
+    UNIT_PRICE                      CHAR (255)
+      Terminated by "|"
+      Enclosed by "^" and "^"
+      Trim whitespace same as SQL Loader

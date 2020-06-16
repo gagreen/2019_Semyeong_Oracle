@@ -1,0 +1,78 @@
+다중 서브 쿼리
+1.
+SELECT empno, name, deptno FROM emp2
+	WHERE deptno IN (SELECT dcode FROM dept2 WHERE area LIKE 'Seoul%');
+
+2.
+SELECT name, position, TO_CHAR(pay,'999,999,999') "pay" FROM emp2
+	WHERE pay >ANY (SELECT pay FROM emp2 WHERE position = 'Department head');
+
+3.
+SELECT name, grade, weight FROM student
+	WHERE weight<ALL (SELECT weight FROM student WHERE grade=2);
+
+4.
+SELECT d.dname, e.name, TO_CHAR(e.pay,'$999,999,999') "SALARY" FROM emp2 e, dept2 d
+	WHERE e.deptno = d.dcode
+	AND e.pay <ALL (SELECT AVG(pay) FROM emp2 e GROUP BY deptno)
+	ORDER BY e.pay;
+
+5.
+SELECT grade, name, weight FROM student
+	WHERE (grade, weight) IN (SELECT grade, MAX(weight) FROM student GROUP BY grade)
+	ORDER BY 1;
+
+6.
+SELECT p.profno, p.name "prof_name", TO_CHAR(p.hiredate,'yyyy-mm-dd'), d.dname "DEPT_NAME" FROM professor p, department d
+	WHERE p.deptno = d.deptno 
+	AND (p.deptno, p.hiredate) IN (SELECT deptno, MIN(hiredate) FROM professor GROUP BY deptno)
+	ORDER BY 3;
+
+7.
+SELECT name, position, TO_CHAR(pay,'$999,999,999') "SALARY" FROM emp2
+	WHERE (position, pay) IN (SELECT position, MAX(pay) FROM emp2 GROUP BY position)
+	ORDER BY 3;
+
+11_06_오전 연습문제
+
+1.
+SELECT ename, hiredate, deptno FROM emp
+	WHERE deptno = (SELECT deptno FROM emp WHERE ename = 'BLAKE');
+
+2.
+SELECT empno, ename, sal FROM emp
+	WHERE sal >= (SELECT AVG(sal) FROM emp)
+	ORDER BY 2 desc;
+
+3.
+SELECT empno, ename, sal FROM emp
+	WHERE deptno IN (SELECT deptno FROM emp WHERE ename LIKE '%T')
+	ORDER BY 1;
+
+4.
+SELECT ename FROM emp
+	WHERE sal >ANY (SELECT sal FROM emp WHERE deptno = 30);
+
+5.
+SELECT ename, job FROM emp
+	WHERE job IN (SELECT job FROM emp WHERE deptno=10)
+	AND deptno = 30;
+
+6.
+SELECT * from emp
+	WHERE (job, sal) IN (SELECT job, sal FROM emp WHERE ename='FORD');
+
+7.
+SELECT ename, job, deptno, sal FROM emp
+	WHERE job = (SELECT job FROM emp WHERE ename='JONES') 
+	OR sal >= (SELECT sal FROM emp WHERE ename='FORD')
+	ORDER BY job, sal desc;
+
+8.
+SELECT ename, job, sal FROM emp
+	WHERE sal IN (SELECT sal FROM emp WHERE ename='SCOTT' OR ename='WARD');
+
+9.
+SELECT e.deptno, e.ename, e.sal FROM emp e, (SELECT deptno, AVG(sal) avgSal FROM emp GROUP BY deptno) avg
+	WHERE sal >= avg.avgSal AND e.deptno = avg.deptno
+	ORDER BY deptno;

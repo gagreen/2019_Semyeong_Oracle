@@ -1,0 +1,95 @@
+1.
+SELECT e.ename, e.deptno, d.dname FROM emp e, dept d
+	WHERE e.deptno = d.deptno;
+
+2.
+SELECT e.ename, e.job, e.deptno, d.dname FROM emp e, dept d
+	WHERE e.deptno = d.deptno AND d.loc = 'DALLAS';
+
+3.
+SELECT e.ename, d.dname FROM emp e, dept d
+	WHERE e.deptno = d.deptno AND ename LIKE '%A%';
+
+4.
+SELECT e.ename, d.dname, sal FROM emp e, dept d	
+	WHERE e.deptno = d.deptno AND e.sal >= 3000;
+
+5.
+SELECT e.job, e.ename, d.dname FROM emp e, dept d	
+	WHERE e.deptno = d.deptno AND e.job = 'SALESMAN';
+
+6.
+SELECT e.empno "사원번호", ename "이름", (e.sal*12) "연봉", (e.sal*12)+e.comm "실급여" FROM emp e
+	WHERE comm is not null;
+
+7.
+SELECT d.deptno, d.dname, e.ename, e.sal, TRUNC(e.sal/100) "급여등급" FROM emp e, dept d	
+	WHERE e.deptno = d.deptno AND e.deptno IN (10, 20);
+
+8.
+SELECT d.deptno, d.dname, e.ename, e.sal, TRUNC(e.sal/100) "급여등급" FROM emp e, dept d	
+	WHERE e.deptno = d.deptno 
+	ORDER BY e.deptno, e.sal desc;
+
+9.
+SELECT e.empno "사원번호", e.ename "사원이름", e.mgr "관리자번호", m.ename "관리자이름" FROM emp e, emp m
+	WHERE e.mgr = m.empno;
+
+10.
+SELECT e.deptno, COUNT(*) "인원수", SUM(e.sal) "급여의 합" FROM emp e
+	GROUP BY e.deptno
+	HAVING COUNT(*) > 4;
+
+11.
+SELECT e.empno, e.job, d.dname FROM emp e, dept d
+	WHERE e.deptno = d.deptno
+	AND (e.job, e.sal) IN (SELECT job, MIN(sal) FROM emp GROUP BY job) 
+	ORDER BY job desc;
+
+12.
+SELECT e.empno, e.ename, NVL(e.comm,0), e.deptno, d.dname, d.loc FROM emp e, dept d
+	WHERE e.deptno = d.deptno
+	AND (e.comm IS null OR e.comm = 0) AND d.loc LIKE '%GO';
+
+13.
+SELECT e.deptno, d.dname, COUNT(DECODE(TO_CHAR(hiredate, 'yyyy'), '1980', 1)) "1980", 
+		COUNT(DECODE(TO_CHAR(hiredate, 'yyyy'), '1981', 1)) "1981", 
+		COUNT(DECODE(TO_CHAR(hiredate, 'yyyy'), '1982', 1)) "1982" FROM emp e, dept d
+	WHERE e.deptno = d.deptno
+	AND hiredate BETWEEN '1980-01-01' AND '1982-12-31'
+	GROUP BY e.deptno, d.dname;
+
+SELECT e.deptno, d.dname, 입사1980, 입사1981, 입사1982 
+	FROM (SELECT e.deptno deptno, TO_CHAR(hiredate, 'yyyy') hiredate FROM emp e, dept d WHERE e.deptno = d.deptno)
+	PIVOT(
+		COUNT(hiredate) FOR hiredate IN(
+				'1980' AS 입사1980,
+				'1981' AS 입사1981,
+				'1982' AS 입사1982
+			)
+	) e, dept d
+	WHERE e.deptno = d.deptno
+	ORDER BY 1;오전 10:35 2019-11-08
+
+14.
+SELECT e.deptno, e.ename, e.job, e.hiredate FROM emp e, dept d
+	WHERE e.deptno = d.deptno
+	AND (hiredate BETWEEN '1981-06-01' AND '1981-12-31') AND d.dname = 'SALES'
+	ORDER BY 4;
+
+15.
+SELECT d.deptno, d.dname, DECODE(COUNT(empno), 0, '없음', COUNT(empno)) "사원수" FROM emp e, dept d
+	WHERE e.deptno(+) = d.deptno
+	GROUP BY d.deptno, d.dname
+	ORDER BY deptno;
+
+16.
+SELECT e.empno, e.ename, e.mgr, m.ename FROM emp e, emp m
+	WHERE e.mgr = m.empno
+	AND e.sal >= m.sal;
+
+17.
+SELECT d.deptno, d.dname, e.empno, e.ename, e.hiredate 
+	FROM (SELECT deptno, empno, ename, hiredate FROM emp WHERE hiredate >= '1981-05-31') e, dept d
+	WHERE e.deptno(+) = d.deptno
+	ORDER BY deptno, hiredate;

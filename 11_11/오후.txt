@@ -1,0 +1,58 @@
+SELECT LPAD(ename, LEVEL*4, '*') "ENAME" FROM emp
+	CONNECT BY PRIOR empno = mgr
+	START WITH empno = 7839;
+
+SELECT LPAD(ename, LEVEL*4, '-') "ENAME" FROM emp
+	CONNECT BY empno = PRIOR mgr
+	START WITH empno = 7369;
+
+
+SELECT empno, ename, job, mgr
+	, PRIOR ENAME AS mgr_name
+	, LEVEL
+	, LPAD('', (LEVEL-1)*2, '') || ename AS depth_ename
+	, SYS_CONNECT_BY_PATH(ename, '-')    AS ename_list
+	FROM emp
+	START WITH mgr IS NULL
+	CONNECT BY PRIOR empno = mgr
+	ORDER SIBLINGS BY ename;
+
+
+SELECT empno, ename, job, mgr
+	, PRIOR ENAME AS mgr_name
+	, LEVEL
+	, LPAD('', (LEVEL-1)*2, '') || ename AS depth_ename
+	, SYS_CONNECT_BY_PATH(ename, '-')    AS ename_list
+	FROM emp
+	START WITH mgr IS NULL
+	CONNECT BY PRIOR empno = mgr
+			AND ename <> 'JONES'
+	ORDER SIBLINGS BY ename;
+
+SELECT LPAD(ename, LEVEL*5, '*') ENAME
+	, SYS_CONNECT_BY_PATH(ename, '->') "ORDER(LOW->HIGH)"
+FROM emp
+WHERE CONNECT_BY_ISLEAF = 1 /* (0, 1)특정 지점만 보여주기*/
+START WITH empno = 7369
+CONNECT BY empno = PRIOR mgr;
+
+SELECT empno, ename, CONNET_BY_ROOT empno "Root EMPNO",
+	SYS_CONNECT_BY_PATH(ename, '<-') "ROOT <- LEAF" FROM emp
+WHERE level > 1
+AND empno = 7369
+CONNECT BY PRIOR empno = mgr;
+
+1.
+SELECT LPAD(' ', (level-1)*5, '-')||e.name||'-'||d.dname||'-'||NVL(e.position,'Worker') "NAME AND POSTION"
+	FROM emp2 e, (SELECT dname, dcode, pdept FROM dept2) d
+	WHERE e.deptno = d.dcode
+	CONNECT BY PRIOR empno = pempno
+	START WITH pempno IS NULL
+	ORDER SIBLINGS BY pempno;
+
+SELECT LPAD(' ', (level-1)*5, '-')||e.name||'-'||d.dname||'-'||NVL(e.position,'Worker') "NAME AND POSTION"
+	FROM emp2 e, (SELECT dname, dcode, pdept FROM dept2) d
+	WHERE e.deptno = d.dcode
+	CONNECT BY PRIOR empno = pempno
+	START WITH name = 'Kevin Bacon'
+	ORDER SIBLINGS BY pempno;

@@ -1,0 +1,36 @@
+1. 
+select name, LOWER(id), UPPER(id) from student where deptno1 = 201;
+
+2. 
+select id, length(id) from student where length(id) >=9;
+
+3. 
+select name, length(name), lengthb(name) from student where deptno1 = 201;
+
+4. 
+select name, SUBSTR(jumin, 0, 6) "생년월일" from student where deptno1 = 101;
+
+5. 
+select name, SUBSTR(jumin, 0, 6) "생년월일" from student where SUBSTR(jumin, 3, 2) = '08';
+
+6. 
+select name, INSTR(tel, ')') from student;
+
+7. 
+select name, tel, SUBSTR(tel, 0, INSTR(tel,')')-1) "지역번호" from student where deptno1 = 101;
+
+8.
+select LTRIM(dname, 'S') from dept2;
+
+9. 
+select RTRIM(dname, 'm') from dept2;
+
+10. 
+select '#' || SUBSTR(name,2) "name" from student;
+
+11. 
+select name, REPLACE(jumin, SUBSTR(jumin, -7), '*******') "주민번호" from student where deptno1 = 101;
+
+12.
+select name, tel, REPLACE(tel, SUBSTR(tel, INSTR(tel, ')')+1, 3), '@@@') "전번" from student where deptno1 = 102;
+select name, tel, REPLACE(tel, SUBSTR(tel, INSTR(tel, ')')+1, INSTR(tel,'-') - INSTR(tel,')')-1), '@@@') from student;

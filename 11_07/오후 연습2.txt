@@ -1,0 +1,73 @@
+CREATE TABLE stu_tbl(
+	stdno NUMBER(4) PRIMARY KEY,
+	name VARCHAR2(10) NOT NULL,
+	deptno NUMBER(2) NOT NULL,
+	grade NUMBER(1) NOT NULL
+);
+
+CREATE TABLE exam_tbl (
+	stdno NUMBER(4) PRIMARY KEY,
+	total NUMBER(3) NOT NULL
+);
+
+CREATE TABLE hakjum_tbl (
+	score VARCHAR2(5) PRIMARY KEY,
+	min_point NUMBER(3),
+	max_point NUMBER(3)
+);
+
+
+INSERT INTO stu_tbl VALUES(9411, '김건호', 10, 1);
+INSERT INTO stu_tbl VALUES(9412, '김규진', 10, 1);
+INSERT INTO stu_tbl VALUES(9413, '김민성', 20, 1);
+INSERT INTO stu_tbl VALUES(9414, '김서환', 20, 2);
+INSERT INTO stu_tbl VALUES(9415, '김종완', 20, 2);
+INSERT INTO stu_tbl VALUES(9416, '김태호', 30, 2);
+INSERT INTO stu_tbl VALUES(9417, '도경진', 20, 3);
+INSERT INTO stu_tbl VALUES(9418, '문관우', 30, 3);
+INSERT INTO stu_tbl VALUES(9419, '박지훈', 30, 3);
+INSERT INTO stu_tbl VALUES(9420, '배근태', 10, 3);
+
+INSERT INTO exam_tbl VALUES(9411, 97);
+INSERT INTO exam_tbl VALUES(9412, 78);
+INSERT INTO exam_tbl VALUES(9413, 83);
+INSERT INTO exam_tbl VALUES(9414, 68);
+INSERT INTO exam_tbl VALUES(9415, 88);
+INSERT INTO exam_tbl VALUES(9416, 92);
+INSERT INTO exam_tbl VALUES(9417, 87);
+INSERT INTO exam_tbl VALUES(9418, 61);
+INSERT INTO exam_tbl VALUES(9419, 71);
+INSERT INTO exam_tbl VALUES(9420, 95);
+
+INSERT INTO hakjum_tbl VALUES('A+', 96, 100);
+INSERT INTO hakjum_tbl VALUES('A0', 90, 95);
+INSERT INTO hakjum_tbl VALUES('B+', 86, 89);
+INSERT INTO hakjum_tbl VALUES('B0', 80, 85);
+INSERT INTO hakjum_tbl VALUES('C+', 76, 79);
+INSERT INTO hakjum_tbl VALUES('C0', 70, 75);
+INSERT INTO hakjum_tbl VALUES('D', 0, 69);
+
+commit;
+------------------------------------------------
+
+1.
+SELECT s.stdno "STDNO", s.name "NAME", DECODE(s.deptno, '10', '컴넷', '20', '전자', '30', '자동차')"학과명", 
+		s.grade "GRADE", e.total "TOTAL", h.score "SCORE"
+	FROM stu_tbl s, exam_tbl e, hakjum_tbl h
+	WHERE s.stdno = e.stdno AND e.total BETWEEN h.min_point AND h.max_point
+	ORDER BY 1;
+
+2.
+SELECT DECODE(s.deptno, '10', '컴넷', '20', '전자', '30', '자동차') "학과명", 
+		SUM(e.total) "점수합계", ROUND(AVG(e.total), 1) "평균", COUNT(s.stdno) "인원수"
+	FROM stu_tbl s, exam_tbl e, hakjum_tbl h
+	WHERE s.stdno = e.stdno AND e.total BETWEEN h.min_point AND h.max_point
+	GROUP BY s.deptno
+	ORDER BY 3 desc;
+
+3.
+SELECT s.stdno "학번", SUBSTR(s.name, 0, LENGTH(s.name)-1)||'*' "학생명", s.grade "학년", e.total "점수"
+	FROM stu_tbl s, exam_tbl e
+	WHERE s.stdno = e.stdno
+	AND (s.grade, e.total) IN (SELECT s.grade, MAX(e.total) FROM stu_tbl s, exam_tbl e WHERE s.stdno = e.stdno GROUP BY s.grade)
+	ORDER BY 3;

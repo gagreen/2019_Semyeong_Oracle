@@ -1,0 +1,34 @@
+1.
+SELECT e.ename, d.dname, e.dno FROM employee e, department2 d
+	WHERE e.dno = d.dno
+	AND e.ename = '이문세';
+
+2.
+SELECT e.eno, e.ename, m.eno, m.ename FROM employee e, employee m
+	WHERE e.manager = m.eno
+	ORDER BY 1;
+
+3.
+SELECT e.eno, e.ename, e.dno, e.salary, (e.salary*12 + NVL(e.commission,0)) "연봉" FROM employee e, department2 d
+	WHERE e.dno = d.dno
+	AND d.loc = '용인'
+	ORDER BY 1;
+
+4.
+SELECT eno, ename, job, salary FROM employee
+	WHERE salary > (SELECT AVG(salary) FROM employee);
+
+5.
+SELECT e.eno, REPLACE(e.ename, SUBSTR(e.ename,ROUND(LENGTH(e.ename)/2),1),'*'), e.job, TO_CHAR(e.hiredate,'yyyy') "입사년도", d.dname FROM employee e, department2 d
+	WHERE e.dno = d.dno AND e.job = '과장'
+	ORDER BY 5;
+
+6.
+SELECT e.eno, e.ename, e.salary, TO_CHAR((salary/30)*10000,'999,999') "일당", d.dname FROM employee e, department2 d
+	WHERE e.dno = d.dno AND e.dno = 20
+	ORDER BY 1;
+
+7.
+SELECT e.eno, e.ename, e.job, e.salary, e.dno, RTRIM(d.dname,'부') "dname", d.loc, DECODE(d.loc, '서울', '서울시', '인천', '인천시', d.loc||'도')"위치" FROM employee e, department2 d
+	WHERE e.dno = d.dno AND hiredate >= '2007-01-01'
+	ORDER BY 1;

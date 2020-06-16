@@ -1,0 +1,91 @@
+CREATE TABLE userTbl_01(
+	userID VARCHAR2(8) PRIMARY KEY,
+	name VARCHAR2(10) NOT NULL,
+	birthYear NUMBER(4) NOT NULL,
+	addr VARCHAR2(8),
+	mobile1 VARCHAR2(3),
+	mobile2 VARCHAR2(8),
+	height NUMBER(3),
+	mDate DATE
+);
+
+
+INSERT INTO userTbl_01 values('LSG', '한석규', 1987, '서울', '011', '1111111', 182, TO_DATE('2008-08-08'));
+INSERT INTO userTbl_01 values('KBS', '조진수', 1979, '경남', '011', '2222222', 173, TO_DATE('2012-04-04'));
+INSERT INTO userTbl_01 values('KKH', '정현호', 1971, '전남', '019', '3333333', 177, TO_DATE('2007-07-07'));
+INSERT INTO userTbl_01 values('JYP', '정현태', 1950, '경기', '011', '4444444', 166, TO_DATE('2009-04-04'));
+INSERT INTO userTbl_01 values('SSK', '정진영', 1979, '서울', NULL , NULL     , 186, TO_DATE('2013-12-12'));
+INSERT INTO userTbl_01 values('LJB', '정수용', 1963, '서울', '016', '6666666', 182, TO_DATE('2009-09-09'));
+INSERT INTO userTbl_01 values('YJS', '임근태', 1969, '경남', NULL , NULL     , 170, TO_DATE('2005-05-05'));
+INSERT INTO userTbl_01 values('EJW', '이진형', 1972, '경북', '011', '8888888', 174, TO_DATE('2014-03-03'));
+INSERT INTO userTbl_01 values('JKW', '이준서', 1965, '경기', '018', '9999999', 172, TO_DATE('2010-10-10'));
+INSERT INTO userTbl_01 values('BBK', '이정호', 1973, '서울', '010', '0000000', 176, TO_DATE('2013-05-05'));
+
+commit;
+
+CREATE TABLE buyTbl_01(
+	num NUMBER(4) PRIMARY KEY,
+	userID VARCHAR2(8) NOT NULL,
+	prodName VARCHAR2(10) NOT NULL,
+	groupName VARCHAR2(6),
+	price NUMBER(6),
+	amount NUMBER(3)
+);
+
+INSERT INTO buyTbl_01 values(1, 'KBS', '운동화', NULL, 30, 2);
+INSERT INTO buyTbl_01 values(2, 'KBS', '노트북', '전자', 1000, 1);
+INSERT INTO buyTbl_01 values(3, 'JYP', '모니터', '전자', 200, 1);
+INSERT INTO buyTbl_01 values(4, 'BBK', '모니터', '전자', 200, 5);
+INSERT INTO buyTbl_01 values(5, 'KBS', '청바지', '의류', 50, 3);
+INSERT INTO buyTbl_01 values(6, 'BBK', '메모리', '전자', 80, 10);
+INSERT INTO buyTbl_01 values(7, 'SSK', '책', '서적', 15, 5);
+INSERT INTO buyTbl_01 values(8, 'EJW', '책', '서적', 15, 2);
+INSERT INTO buyTbl_01 values(9, 'EJW', '청바지', '의류', 50, 1);
+INSERT INTO buyTbl_01 values(10, 'BBK', '운동화', NULL, 30, 2);
+INSERT INTO buyTbl_01 values(11, 'EJW', '책', '서적', 15, 1);
+INSERT INTO buyTbl_01 values(12, 'BBK', '운동화', NULL, 30, 2);
+commit;
+
+-------------------------------------------------------------------
+
+1.
+SELECT u.userID "ID", u.name "이름", u.height "키", b.prodName "구매물품", b.price*b.amount "구매금액" 
+	FROM userTbl_01 u, buyTbl_01 b
+	WHERE u.userID = b.userID
+	AND u.height >= 175;
+
+2.
+SELECT u.name, u.addr, u.mDate
+	FROM userTbl_01 u
+	WHERE u.addr IN ('서울','경기')
+	AND u.mDate >= '2010-01-01';
+
+3.
+SELECT prodName "물품명", MAX(price) "단가", SUM(amount) "수량", SUM(price*amount) "구매금액", RANK() OVER(ORDER BY SUM(price*amount) desc) "순위"
+	FROM buyTbl_01 b
+	GROUP BY prodName;
+
+4.
+SELECT groupName "분류", SUM(price*amount) "구매금액" FROM buyTbl_01
+	GROUP BY groupName
+	ORDER BY 2 desc;
+
+5.*error*
+SELECT MIN(name), addr, MAX(sum) "구매금액"
+	FROM (SELECT u.name name, u.addr addr, SUM(price*amount) OVER (PARTITION BY u.userID ORDER BY u.userID) sum 
+		FROM userTbl_01 u, buyTbl_01 b
+		WHERE u.userID = b.userID)
+	GROUP BY addr;
+
+7.
+SELECT REPLACE(u.userID, SUBSTR(u.userID,ROUND(LENGTH(u.userID)/2),1), '*') "회원ID", u.name "회원명", u.addr "지역명", TO_CHAR(SUM(b.price*b.amount),'999,999') "구매금액"
+	FROM userTbl_01 u, buyTbl_01 b
+	WHERE u.userID = b.userID
+	GROUP BY u.userID, u.name, u.addr
+	ORDER BY 4 desc;
+
+8.
+SELECT u.name "이름", u.mobile1 || u.mobile2 "연락처", DECODE(u.mobile1,'011', 'SK', '016', 'KT', '019', 'LG')"통신사", b.prodName "구매물품", TO_CHAR(u.mDate,'yyyy') "가입년도"
+	FROM userTbl_01 u, buyTbl_01 b
+	WHERE u.userID = b.userID
+	AND b.groupName IN ('전자','서적');

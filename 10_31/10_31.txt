@@ -1,0 +1,20 @@
+문제 2.
+
+  1  select dname, max(height) "MAX_HEIGHT", max(weight) "MAX_WEIGHT"
+  2  from (select dname, height, weight from department, student
+  3  where department.deptno = student.deptno1 order by deptno)
+  4  GROUP BY dname;
+(VER.1)
+select d.dname, s.max_height, s.max_weight 
+from (select MAX(height) max_height, MAX(weight) max_weight from student GROUP BY deptno1) s, department d
+WHERE s.deptno1 = d.deptno;
+(VER.2)
+
+문제 3.
+
+SELECT d.dname,	a.max_height, s.name, s.height
+FROM (SELECT deptno1, MAX(height) max_height 
+	from student GROUP BY deptno1) a, student s, department d
+WHERE a.deptno1 = s.deptno1
+	AND s.height = a.max_height
+	AND s.deptno1 = d.deptno;

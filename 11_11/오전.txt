@@ -1,0 +1,150 @@
+1. 
+SELECT p.profno, p.name, TO_CHAR(p.hiredate,'yyyy-mm-dd') "hiredate", d.dname FROM professor p, department d
+	WHERE p.deptno = d.deptno
+	AND (p.deptno, p.hiredate) IN (SELECT deptno, MIN(hiredate) FROM professor GROUP BY deptno)
+	ORDER BY 3;
+
+2.
+SELECT name, position, TO_CHAR(pay, '$999,999,999') FROM emp2
+	WHERE (position, pay) IN (SELECT position, MAX(pay) FROM emp2 GROUP BY position)
+	ORDER BY 3;
+
+3.
+CREATE TABLE t3 (
+	no NUMBER,
+	name VARCHAR2(10),
+	deptno NUMBER
+);
+
+CREATE TABLE t4(
+	deptno NUMBER,
+	dname VARCHAR(10)
+);
+
+INSERT INTO t3 VALUES (1, 'AAA', 100);
+INSERT INTO t3 VALUES (2, 'BBB', 200);
+INSERT INTO t3 VALUES (3, 'CCC', 300);
+commit;
+INSERT INTO t4 VALUES (100, 'DDD');
+INSERT INTO t4 VALUES (100, 'EEE');
+INSERT INTO t4 VALUES (200, 'FFF');
+INSERT INTO t4 VALUES (300, 'GGG');
+commit;
+
+SELECT t3.no, t3.name, (SELECT dname FROM t4 WHERE t3.deptno = t4.deptno) FROM t3;
+/* ERROR 발생*/
+
+UPDATE t4 SET deptno = 400 WHERE dname = 'DDD';
+commit;
+
+SELECT t3.no, t3.name, (SELECT dname FROM t4 WHERE t3.deptno = t4.deptno) FROM t3;
+
+4.
+WITH a AS(
+      SELECT /*+ index_desc(w idx_with_pay)*/ pay
+      FROM with_test1 w
+      WHERE pay >0 AND rownum=1),
+   b AS(
+      SELECT /*+ index(w idx_with_pay)*/ PAY
+      FROM with_test1 w
+      WHERE pay >0
+      AND rownum=1)
+   SELECT a.pay- b.pay
+   FROM a,b;
+
+5.
+SELECT COUNT(*) FROM with_test1
+WHERE pay <ALL (SELECT /*+ INDEX (w idx_with_no) */ pay
+           FROM with_test1 w
+           WHERE no BETWEEN 120000 AND 130000);
+
+WITH t AS (
+	SELECT /*+ index (w idx_with_pay) */ min(pay) min_pay
+	FROM with_test1 w
+	WHERE pay > 0
+	AND no BETWEEN 120000 AND 130000
+	AND rownum = 1)
+SELECT COUNT(*)
+FROM with_test1 w, t
+WHERE w.pay < t.min_pay;
+
+DROP INDEX idx_with_pay;
+
+SELECT 'max pay' c1, max(pay) max_pay FROM with_test1
+UNION ALL
+SELECT 'min pay' c1, min(pay) min_pay FROM with_test1
+UNION ALL
+SELECT 'max pay - min pay' c1, (max(pay) - min(pay)) diff_pay FROM with_test1;
+
+WITH sub_pay AS(
+	SELECT max(pay) max_pay, min(pay) min_pay
+	FROM with_test1
+)
+SELECT 'max pay' c1, max_pay FROM sub_pay
+UNION ALL
+SELECT 'min pay' c1, min_pay FROM sub_pay
+UNION ALL
+SELECT 'max pay - min pay' c1, max_pay - min_pay FROM sub_pay;
+
+6.
+CREATE TABLE cust_t(
+	cust_no VARCHAR2(1000),
+	cust_nm VARCHAR2(1000)
+);
+
+INSERT INTO cust_t 
+SELECT level, 'NM'||TO_CHAR(level,'000')
+	FROM dual connect by level <= 1000;
+commit;
+
+CREATE TABLE order_t(
+	order_no VARCHAR2(4000),
+	cust_no VARCHAR2(1000),
+	orderdd VARCHAR2(8),
+	product_nm VARCHAR2(4000)
+);
+INSERT /*+ append */INTO order_t 
+SELECT level order_no, mod(level, 500) CUST_NO, TO_CHAR(sysdate - mod(level,30),'YYYYMMDD') orderdd, 
+	'TEST PRODUCT LONG NAME ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~'
+	FROM dual connect by level <= 1000000;
+commit;
+
+/*
+exec dbms_stats.gather_table_stats( ownname => 'SCOTT', tabname => 'CUST_T', cascade => true, no_invalidate => false);
+exec dbms_stats.gather_table_stats(ownname => 'SCOTT', tabname => 'ORDER_T', cascade => true, no_invalidate => false);
+*/
+
+COL TABLE_NAME FORMAT A10
+/*통계정보 확인*/
+SELECT TABLE_NAME, NUM_ROWS, BLOCKS, AVG_ROW_LEN, SAMPLE_SIZE
+	FROM USER_TABLES
+	WHERE TABLE_NAME IN ('ORDER_T', 'CUST_T');
+
+CREATE INDEX idx_order_t_01 ON order_t (cust_no);
+
+SELECT COUNT(*) FROM cust_t a
+	WHERE exists (SELECT 1 FROM order_t b WHERE a.cust_no = b.cust_no);
+
+explain plan FOR
+SELECT COUNT(*) FROM cust_t a
+	WHERE exists (SELECT 1 FROM order_t b WHERE a.cust_no = b.cust_no);
+
+SELECT * FROM table(dbms_xplan.display);
+
+DROP INDEX idx_order_t_01;
+CREATE INDEX ix_cust_t_01 ON cust_t (cust_no);
+
+SELECT /*+ leading(order_t) use_nl(order_t cust_t) */
+	COUNT(*)
+FROM cust_t
+WHERE cust_no IN (SELECT cust_no FROM order_t);
+
+explain plan for
+SELECT /*+ leading(order_t) use_nl(order_t cust_t) */
+	COUNT(*)
+FROM cust_t
+WHERE cust_no IN (SELECT cust_no FROM order_t);
+
+SELECT * FROM table(dbms_xplan.display);
+
+/*-----*/

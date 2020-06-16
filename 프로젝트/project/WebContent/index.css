@@ -1,0 +1,74 @@
+@charset "EUC-KR";
+
+ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    background-color: #3232FF;
+}
+ul:after{
+    content:'';
+    display: block;
+    clear:both;
+}
+li {
+    float: left;
+}
+li a {
+    display: block;
+    color: white;
+    text-align: center;
+    padding: 14px 15px;
+    text-decoration: none;
+}
+li a:hover:not(.active) {
+    background-color: #5050FF;
+}
+.active {
+    background-color: #FF0000;
+}
+h1{
+	display: block;
+  font-size: 2em;
+  margin-top: 0.67em;
+  margin-bottom: 0.67em;
+  margin-left: 0;
+  margin-right: 0;
+  font-weight: bold;
+}
+
+table
+{
+	width :100%;
+	 
+	  
+}
+th 
+{
+	border-bottom: 1px solid #444444;
+	padding: 15px;
+}
+
+.cont :hover{
+	background-color: #dcdcdc;
+}
+
+
+.board 
+{
+	width :100%;
+	border-bottom: 1px solid #444444;
+	border-top: 1px solid #444444;
+} 
+.cont{
+	width :100%;
+
+}
+
+.rank{
+	width :100%;
+}
+
+.point{
+	font-weight: bold;
+}

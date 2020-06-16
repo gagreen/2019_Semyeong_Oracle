@@ -1,0 +1,45 @@
+Rem $Header: bi_oe_pr.sql 18-sep-2002.10:15:02 ahunold Exp $
+Rem
+Rem Copyright (c) 2002, Oracle Corporation.  All rights reserved.  
+Rem
+Rem    NAME
+Rem      bi_oe_pr.sql - Object privileges for user BI
+Rem
+Rem    DESCRIPTION
+Rem      tbd
+Rem
+Rem    MODIFIED     (MM/DD/YY)
+Rem      ahunold     09/18/02 - ahunold_sep17_02
+Rem      ahunold     09/17/02 - created
+Rem
+
+SET FEEDBACK 1
+SET NUMWIDTH 10
+SET LINESIZE 80
+SET TRIMSPOOL ON
+SET TAB OFF
+SET PAGESIZE 100
+
+PROMPT
+PROMPT specify password for oe as parameter 1:
+DEFINE oe_pass             = &1
+
+PROMPT
+
+CONNECT oe/&oe_pass;
+
+GRANT SELECT ON BOMBAY_INVENTORY TO bi;
+GRANT SELECT ON CUSTOMERS TO bi;
+GRANT SELECT ON INVENTORIES TO bi;
+GRANT SELECT ON ORDERS TO bi;
+GRANT SELECT ON ORDER_ITEMS TO bi;
+GRANT SELECT ON PRODUCTS TO bi;
+GRANT SELECT ON PRODUCT_DESCRIPTIONS TO bi;
+GRANT SELECT ON PRODUCT_INFORMATION TO bi;
+GRANT SELECT ON PRODUCT_PRICES TO bi;
+GRANT SELECT ON PROMOTIONS TO bi;
+GRANT SELECT ON SYDNEY_INVENTORY TO bi;
+GRANT SELECT ON TORONTO_INVENTORY TO bi;
+GRANT SELECT ON WAREHOUSES TO bi;
+
+COMMIT;

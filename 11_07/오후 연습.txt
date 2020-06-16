@@ -1,0 +1,59 @@
+CREATE TABLE customer1(
+id VARCHAR2(10) CONSTRAINT PK_id PRIMARY KEY,
+pwd VARCHAR2(20)  NOT NULL,
+name VARCHAR2(20)  NOT NULL,
+phone1 VARCHAR2(3),
+phone2 VARCHAR2(8),
+birthYear number(4),
+address VARCHAR2(100)
+);
+insert into customer1 values('LSG','ab12','이승기','011','12345678',1997,'서울 성동구');
+insert into customer1 values('KBS','ab32','김범수','016','23456789',1989,'경남 창원');
+insert into customer1 values('KKH','abc1','김경호','019','34567890',1981,'전남 광주');
+insert into customer1 values('JYP','abcd12','조용필','011','45678901',1960,'경기 남양주');
+insert into customer1 values('SSK','ab33','성시경','019','56789123',1989,'서울 강남구');
+insert into customer1 values('LJB','ab44','임재범','016','67891234',1973,'서울 강동구');
+insert into customer1 values('YJS','ab5678','윤종신','011','78901234',1979,'경남 김해');
+
+commit;
+
+CREATE TABLE orders (
+ oseq     number(4) PRIMARY KEY,
+ id        varchar2(10) NOT NULL,
+ indate    date NOT NULL,
+ pcode   varchar2(10),
+ qty  varchar2(20),
+ price number(10)
+);
+insert into orders values(1001,'LSG','20100103','A001',10,12000);
+insert into orders values(1002,'JYP','20100813','A003',20,8000);
+insert into orders values(1003,'KBS','20100904','A002',25,15000);
+insert into orders values(1004,'SSK','20101230','A001',15,12000);
+insert into orders values(1005,'YJS','20110801','A003',10,8000);
+insert into orders values(1006,'LSG','20110912','A001',7,12000);
+insert into orders values(1007,'KKH','20110304','A001',21,12000);
+insert into orders values(1008,'YJS','20120605','A002',12,15000);
+insert into orders values(1009,'LJB','20120701','A002',16,15000);
+insert into orders values(1010,'KBS','20121020','A003',23,8000);
+
+commit;
+
+---------------------------------------------------------------
+
+1.
+SELECT c.id "고객 ID", REPLACE(c.pwd,SUBSTR(c.pwd,1,2),'**') "비밀번호", c.name "이름", 
+    c.phone1 || c.phone2 "전화번호", DECODE(c.phone1, '011','SK','016','KT','019','LG') "통신사", 
+    TO_CHAR(SYSDATE,'yyyy') - c.birthYear "나이", c.address "주소" 
+	FROM customer1 c;
+
+2.
+SELECT c.id "고객 ID", c.name "고객이름", TO_CHAR(SUM(o.qty * o.price), '999,999') "총 매출액" FROM customer1 c, orders o
+	WHERE c.id = o.id
+	GROUP BY c.id, c.name
+	ORDER BY 3 desc;
+
+3.
+SELECT pcode "상품코드", DECODE(pcode, 'A001', '목걸이', 'A002', '팔찌', 'A003', '반지') "상품명", 
+    SUM(qty)"판매누적수량", TO_CHAR(SUM(qty * price), '999,999') "총매출액", RANK() OVER(ORDER BY SUM(qty * price) desc) "순위" 
+	FROM orders
+	GROUP BY pcode;

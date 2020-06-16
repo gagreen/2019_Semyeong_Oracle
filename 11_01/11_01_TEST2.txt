@@ -1,0 +1,57 @@
+create table product1(
+	pcode VARCHAR2(10) PRIMARY KEY,
+	name VARCHAR2(20),
+	cost NUMBER(10),
+	brand VARCHAR2(20)
+);
+
+create table store1(
+	scode VARCHAR2(10) PRIMARY KEY,
+	sname varchar2(20)
+);
+
+create table sale1(
+	saleno number(10) PRIMARY KEY,
+	pcode varchar2(10) NOT NULL,
+	safedate DATE,
+	scode VARCHAR2(10) NOT NULL,
+	amount NUMBER(10)
+);
+
+INSERT INTO product1 VALUES('AA01','꼬깔콘',3000,'롯데');
+INSERT INTO product1 VALUES('AA02','새우깡',3500,'농심');
+INSERT INTO product1 VALUES('AA03','포카칩',4000,'오리온');
+INSERT INTO product1 VALUES('AA04','오징어땅콩',4500,'오리온');
+INSERT INTO product1 VALUES('AA05','맛동산',5000,'해태');
+INSERT INTO product1 VALUES('AA06','허니버터칩',6000,'해태');
+INSERT INTO product1 VALUES('AA07','꿀꽈배기',6500,'농심');
+
+INSERT INTO store1 VALUES('S001','강남점');
+INSERT INTO store1 VALUES('S002','강서점');
+INSERT INTO store1 VALUES('S003','강동점');
+INSERT INTO store1 VALUES('S004','강북점');
+INSERT INTO store1 VALUES('S005','동대문점');
+INSERT INTO store1 VALUES('S006','중구점');
+
+INSERT INTO sale1 VALUES(100001,'AA01', TO_DATE('20180102'), 'S001', 50);
+INSERT INTO sale1 VALUES(100002,'AA03', TO_DATE('20180102'), 'S002', 40);
+INSERT INTO sale1 VALUES(100003,'AA04', TO_DATE('20180202'), 'S002', 20);
+INSERT INTO sale1 VALUES(100004,'AA04', TO_DATE('20180202'), 'S001', 30);
+INSERT INTO sale1 VALUES(100005,'AA05', TO_DATE('20180302'), 'S004', 40);
+INSERT INTO sale1 VALUES(100006,'AA03', TO_DATE('20180302'), 'S004', 30);
+INSERT INTO sale1 VALUES(100007,'AA01', TO_DATE('20180302'), 'S003', 40);
+INSERT INTO sale1 VALUES(100008,'AA04', TO_DATE('20180502'), 'S004', 10);
+INSERT INTO sale1 VALUES(100009,'AA01', TO_DATE('20180502'), 'S003', 20);
+INSERT INTO sale1 VALUES(100010,'AA05', TO_DATE('20180602'), 'S003', 30);
+INSERT INTO sale1 VALUES(100011,'AA01', TO_DATE('20180602'), 'S001', 40);
+INSERT INTO sale1 VALUES(100012,'AA03', TO_DATE('20180902'), 'S002', 50);
+INSERT INTO sale1 VALUES(100013,'AA04', TO_DATE('20180902'), 'S002', 50);
+INSERT INTO sale1 VALUES(100014,'AA05', TO_DATE('20181002'), 'S004', 20);
+INSERT INTO sale1 VALUES(100015,'AA01', TO_DATE('20181002'), 'S003', 30);
+
+select p.pcode "상품코드", MIN(p.name) "상품이름", MIN(DECODE(p.brand, '롯데', 'L사', '해태', 'H사', '오리온', 'O사', '농심', 'N사')) "제조사",
+	 TO_CHAR(SUM(p.cost * sa.amount),'999,999') "총판매액"
+from product1 p, store1 st, sale1 sa
+where p.pcode = sa.pcode AND st.scode = sa.scode
+group by p.pcode
+order by p.pcode;

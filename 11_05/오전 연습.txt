@@ -1,0 +1,54 @@
+1.
+SELECT sc.studno, sc.total, h.grade FROM hakjum h, score sc
+	WHERE sc.total BETWEEN h.min_point and h.max_point
+	ORDER BY 3;
+
+2.
+SELECT s.name, sc.total, h.grade FROM student s, hakjum h, score sc
+	WHERE sc.total BETWEEN h.min_point and h.max_point AND s.studno = sc.studno
+	ORDER BY 3;
+
+3.
+SELECT e.name, TO_CHAR(TRUNC(MONTHS_BETWEEN(sysdate, e.birthday)/12))"AGE", e.position "현재 직급", p.position "예상직급" FROM emp2 e, p_grade p
+	WHERE TRUNC(MONTHS_BETWEEN(sysdate, e.birthday)/12) BETWEEN s_age AND e_age; 
+
+4.
+SELECT g.gname "상품명", COUNT(*) "필요 수량" FROM customer c, gift g
+	WHERE c.point BETWEEN g.g_start AND g.g_end
+	GROUP BY g.gname
+	ORDER BY 2;
+
+5.
+SELECT c.gname "고객명", c.point "포인트", g.gname "상품명" FROM customer c, gift g
+	WHERE (c.point BETWEEN g.g_start AND g.g_end) AND c.point >= (select g_start FROM gift WHERE gname = 'Mountain bike') 
+	ORDER BY 2;
+
+서브쿼리
+1.
+SELECT s.name, d.dname FROM student s, department d
+	WHERE deptno1 = (SELECT deptno1 FROM student WHERE name = 'Demi Moore')
+		AND s.deptno1 = d.deptno;
+
+2.
+SELECT name, hiredate FROM professor p 
+	WHERE hiredate > (SELECT hiredate FROM professor WHERE name = 'Jodie Foster');
+
+3.
+SELECT s.name, s.weight FROM student s
+	WHERE weight > (SELECT AVG(weight) FROM student WHERE deptno1 = 102);
+
+4.
+SELECT deptno1 FROM student
+	GROUP BY deptno1
+	HAVING COUNT(*) = (SELECT MAX(COUNT(*)) FROM student GROUP BY deptno1);
+
+5.
+SELECT s.name, d.dname FROM student s, department d, score sc
+	WHERE sc.studno = s.studno AND d.deptno = s.deptno1
+	AND sc.total = (SELECT MIN(total) FROM score);
+
+6.
+SELECT s.grade, s.name, d.dname, sc.total FROM student s, department d, score sc
+	WHERE sc.studno = s.studno AND d.deptno = s.deptno1
+	AND s.grade = 2
+	AND sc.total <= (SELECT AVG(total) FROM student s, score sc WHERE sc.studno=s.studno AND s.grade = 2);

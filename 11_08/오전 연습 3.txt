@@ -1,0 +1,24 @@
+1.
+SELECT e.ename, e.sal, d.dname FROM emp e, dept d
+	WHERE e.deptno = d.deptno
+	AND LENGTH(e.ename) = 5 AND e.sal = (SELECT MAX(sal) FROM emp WHERE LENGTH(ename)= 5);
+
+2.
+SELECT d.dname, e.ename, e.sal FROM emp e, dept d
+	WHERE e.deptno = d.deptno
+	AND e.sal > (SELECT AVG(sal) FROM emp WHERE deptno = (SELECT deptno FROM emp WHERE ename='CLARK'))
+	AND rownum = 1
+	ORDER BY hiredate;
+
+3.
+SELECT d.dname FROM emp e, dept d
+	WHERE e.ename = 'ALLEN' AND e.deptno = d.deptno;
+
+4.
+SELECT e.empno, e.ename, d.dname, e.sal FROM emp e, dept d
+	WHERE e.deptno = d.deptno
+	AND sal > (SELECT MAX(sal) FROM emp WHERE ename LIKE '%J%')
+	ORDER BY sal desc;
+5.
+SELECT ename, sal FROM (SELECT ename, sal, RANK() OVER(ORDER BY sal desc) rank FROM emp ORDER BY sal desc)
+	WHERE rank =2;

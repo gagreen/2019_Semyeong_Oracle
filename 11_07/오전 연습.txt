@@ -1,0 +1,106 @@
+1.
+SELECT s.grade, s.name, s.height FROM student s, (SELECT grade, MAX(height) height FROM student GROUP BY grade) h
+	WHERE s.grade = h.grade AND s.height = h.height
+	ORDER BY 1;
+
+2.
+SELECT e.deptno, e.sal, e.ename FROM emp e, (SELECT deptno, AVG(sal) avgSal FROM emp GROUP BY deptno) a
+	WHERE e.deptno = a.deptno AND e.sal >= a.avgSal
+	ORDER BY 1;
+p.432~
+3.
+SELECT d.dname, max_d.mh "MAX_HEIGHT", max_d.mw"MAX_WEIGHT"
+	FROM (SELECT deptno1, MAX(height) mh, MAX(weight)mw FROM student GROUP BY deptno1) max_d, department d
+	WHERE max_d.deptno1 = d.deptno
+	ORDER BY max_d.deptno1;
+
+4.
+SELECT d.dname, m.mh"MAX_HEIGHT", s.name, s.height
+	FROM (SELECT deptno1, MAX(height) mh FROM student GROUP BY deptno1) m, student s, department d
+	WHERE d.deptno = m.deptno1 AND s.deptno1 = m.deptno1 AND s.height = m.mh
+	ORDER BY s.studno;
+
+5.
+SELECT s.grade, s.name, s.height, a.ah "AVG_HEIGHT"
+	FROM (SELECT grade, AVG(height) ah FROM student GROUP BY grade) a, student s
+	WHERE s.height >= a.ah AND s.grade = a.grade
+	ORDER BY 1;
+
+6.
+SELECT r.rank "Ranking", p.name, p.pay 
+	FROM professor p, (SELECT RANK() OVER(ORDER BY pay desc) rank, profno, pay FROM professor) r
+	WHERE r.profno = p.profno AND r.rank <= 5;
+
+1107_연습
+1.
+SELECT empno, sal, deptno FROM emp WHERE deptno = 10;
+
+2.
+SELECT empno, ename, deptno FROM emp WHERE hiredate = '1981-02-20';
+
+3.
+SELECT empno, ename, hiredate FROM emp WHERE hiredate BETWEEN '1981-01-01' AND '1981-12-31';
+
+4.
+SELECT ename, deptno FROM emp WHERE deptno IN (10, 20);
+
+5.
+SELECT ename, sal, comm FROM emp WHERE comm is null;
+
+6.
+SELECT empno, ename FROM emp WHERE ename LIKE 'B%';
+
+7.
+SELECT ename, job, sal FROM emp WHERE sal BETWEEN 1000 AND 2000
+	ORDER BY sal desc;
+
+8.
+SELECT empno, REPLACE(ename, SUBSTR(ename, 1,2),'**') FROM emp;
+
+9.
+SELECT ename, hiredate, deptno FROM emp WHERE TO_CHAR(hiredate,'mm') = '02';
+
+10.
+SELECT ename, sal, NVL(comm,0) comm, (sal*12+NVL(comm,0)) "연봉" FROM emp;
+
+11.
+SELECT empno, ename, job, DECODE(job, 'CLERK','2급','SALESMAN','3급','MANAGER','4급','ANALYST','특급') "직급" FROM emp;
+
+12.
+SELECT deptno, SUM(sal) "합계", AVG(sal) "평균" FROM emp GROUP BY deptno;
+
+13.
+SELECT deptno, ROUND(AVG(sal),2) "평균" FROM emp GROUP BY deptno HAVING AVG(sal) >= 1500;
+
+14.
+SELECT empno, ename, sal, RANK() OVER(ORDER BY sal desc) FROM emp;
+
+15.
+SELECT job, COUNT(*) "인원수" FROM emp 
+	WHERE job <> 'CLERK' GROUP BY job 
+	ORDER BY 2;
+
+16.
+SELECT e.empno, e.ename, e.deptno, d.dname FROM emp e, dept d
+	WHERE job = 'SALESMAN' AND e.deptno = d.deptno;
+
+17.
+SELECT deptno, empno, ename, sal FROM emp 
+	WHERE (deptno, sal) IN (SELECT deptno, MAX(sal) FROM emp GROUP BY deptno)
+	ORDER BY 1;
+
+18.
+SELECT e.empno "사번", e.ename "이름", LPAD(e.mgr,6,'0') "매니저 번호", m.ename "매니저 이름", 
+    TO_CHAR(e.hiredate,'YYYY"년"MM"월"DD"일"') "HIREDATE" FROM emp e, emp m
+	WHERE e.mgr = m.empno
+	ORDER BY 1;
+
+19.
+SELECT e.empno, e.ename FROM emp e
+	WHERE e.sal >= (SELECT AVG(sal) FROM emp)
+	ORDER BY e.sal desc;
+
+20.
+SELECT e.ename, e.job, e.sal, d.dname FROM emp e, dept d
+	WHERE e.deptno = d.deptno AND (job = (SELECT job FROM emp WHERE ename = 'JONES')
+	OR sal >= (SELECT sal FROM emp WHERE ename = 'ALLEN'));

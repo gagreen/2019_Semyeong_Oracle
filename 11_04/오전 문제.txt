@@ -1,0 +1,29 @@
+1.
+SELECT name, position, TO_CHAR(hiredate, 'yyyy-mm-dd') "입사일" FROM professor 
+	where hiredate BETWEEN '2001-01-01' AND SYSDATE order by hiredate;
+
+2.
+SELECT MAX(pay + NVL(bonus,0)) "최댓값", MIN(pay + NVL(bonus,0)) "최솟값", ROUND(AVG(pay + NVL(bonus,0)),1) "평균" from professor;
+
+3.
+SELECT deptno, ROUND(AVG(pay)) "평균급여", ROUND(AVG((pay)*12 + NVL(bonus,0))) "평균연봉" FROM professor
+	GROUP BY deptno ORDER BY deptno;
+
+4.
+SELECT deptno, TRUNC(AVG(pay)) "평균급여" FROM professor 
+	GROUP BY deptno HAVING AVG(pay) >= 400 
+	ORDER BY deptno;
+
+5.
+SELECT deptno, COUNT(*) "인원수", ROUND(AVG(pay)) "평균급여" FROM professor
+	WHERE pay >= 300 GROUP BY deptno ORDER BY deptno;
+
+6.
+SELECT position, COUNT(*) "인원수" FROM professor
+	WHERE position <> 'instructor' GROUP BY position 
+	order by 2 desc;
+
+7.
+SELECT SUBSTR(tel, 0, INSTR(tel, ')')-1) "지역번호", DECODE(SUBSTR(tel, 0, INSTR(tel, ')')-1), '02', '서울', '031', '경기', '051', '부산', '기타')"지역", COUNT(*)"인원수" FROM student
+	GROUP BY ROLLUP(SUBSTR(tel, 0, INSTR(tel, ')')-1))
+	order by 1;
